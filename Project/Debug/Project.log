@@ -1,0 +1,5 @@
+﻿  Performing Custom Build Step
+  y_tab.c
+bison.simple(317): warning C4013: 'yyerror' undefined; assuming extern returning int
+bison.simple(377): warning C4013: 'yylex' undefined; assuming extern returning int
+  Project.vcxproj -> D:\Eldar\Study\3 course\2 semester\Compilers\Lab 1\Project\Debug\Project.exe
