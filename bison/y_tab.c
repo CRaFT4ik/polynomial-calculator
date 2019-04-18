@@ -25,7 +25,7 @@
 	{
 		#ifdef DEBUG
 		printf("#%d:\t", num);
-		for (int i = 0; i < 8; i++)
+		for (int i = 0; i < 9; i++)
 			printf("%d\t", coefs[i]);
 		printf("\n");
 		#endif
@@ -119,11 +119,11 @@ typedef
 
 
 
-#define	YYFINAL		62
+#define	YYFINAL		72
 #define	YYFLAG		-32768
 #define	YYNTBASE	13
 
-#define YYTRANSLATE(x) ((unsigned)(x) <= 260 ? yytranslate[x] : 18)
+#define YYTRANSLATE(x) ((unsigned)(x) <= 260 ? yytranslate[x] : 19)
 
 static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -156,39 +156,41 @@ static const char yytranslate[] = {     0,
 
 #if YYDEBUG != 0
 static const short yyprhs[] = {     0,
-     0,     2,     4,     6,     8,    12,    15,    20,    24,    27,
-    31,    35,    39,    43,    47,    51,    55,    59,    63,    67,
-    71,    75,    79,    83,    87,    91,    95,    99,   102,   104,
-   106
+     0,     2,     4,     6,     8,    12,    16,    19,    21,    25,
+    29,    33,    37,    41,    45,    49,    53,    57,    61,    65,
+    69,    75,    79,    83,    87,    91,    95,    99,   102,   104,
+   107,   112,   117,   124,   126
 };
 
 static const short yyrhs[] = {    14,
      0,    16,     0,    15,     0,     4,     0,     4,     9,    16,
-     0,    17,     4,     0,    17,     4,     9,    16,     0,    11,
-    15,    12,     0,     6,    15,     0,    15,     5,    15,     0,
-    15,     6,    15,     0,    15,     7,    15,     0,    15,     8,
-    15,     0,    16,     7,    15,     0,    15,     7,    16,     0,
-    16,     8,    15,     0,    15,     8,    16,     0,    15,     5,
-    16,     0,    15,     6,    16,     0,    16,     5,    15,     0,
-    16,     6,    15,     0,    11,    16,    12,     0,    16,     5,
+     0,    11,    15,    12,     0,     6,    15,     0,    17,     0,
+    15,     5,    15,     0,    15,     6,    15,     0,    15,     7,
+    15,     0,    15,     8,    15,     0,    16,     7,    15,     0,
+    15,     7,    16,     0,    16,     8,    15,     0,    15,     8,
+    16,     0,    15,     5,    16,     0,    15,     6,    16,     0,
+    16,     5,    15,     0,    16,     6,    15,     0,    11,    15,
+    12,     9,    16,     0,    11,    16,    12,     0,    16,     5,
     16,     0,    16,     6,    16,     0,    16,     7,    16,     0,
     16,     8,    16,     0,    16,     9,    16,     0,     6,    16,
-     0,    17,     0,     3,     0,    17,     3,     0
+     0,    18,     0,    18,     4,     0,    18,     4,     9,    16,
+     0,    17,    11,    15,    12,     0,    11,    15,    12,    11,
+    15,    12,     0,     3,     0,    18,     3,     0
 };
 
 #endif
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-   105,   111,   118,   126,   135,   142,   149,   156,   162,   170,
-   177,   184,   202,   210,   217,   224,   231,   239,   246,   253,
-   260,   271,   278,   283,   288,   293,   298,   305,   310,   313,
-   317
+   106,   112,   119,   127,   136,   143,   149,   156,   163,   170,
+   177,   195,   203,   210,   217,   224,   232,   239,   246,   253,
+   262,   293,   300,   305,   310,   315,   320,   327,   332,   335,
+   344,   351,   369,   389,   393
 };
 
 static const char * const yytname[] = {   "$","error","$undefined.","DIGIT",
 "LETTER","'+'","'-'","'*'","'/'","'^'","UMINUS","'('","')'","main","convol",
-"var_convol","num_convol","number",""
+"var_convol","num_convol","mult_simpl","number",""
 };
 #endif
 
@@ -196,70 +198,78 @@ static const short yyr1[] = {     0,
     13,    14,    14,    15,    15,    15,    15,    15,    15,    15,
     15,    15,    15,    15,    15,    15,    15,    15,    15,    15,
     15,    16,    16,    16,    16,    16,    16,    16,    16,    17,
-    17
+    17,    17,    17,    18,    18
 };
 
 static const short yyr2[] = {     0,
-     1,     1,     1,     1,     3,     2,     4,     3,     2,     3,
+     1,     1,     1,     1,     3,     3,     2,     1,     3,     3,
      3,     3,     3,     3,     3,     3,     3,     3,     3,     3,
-     3,     3,     3,     3,     3,     3,     3,     2,     1,     1,
-     2
+     5,     3,     3,     3,     3,     3,     3,     2,     1,     2,
+     4,     4,     6,     1,     2
 };
 
 static const short yydefact[] = {     0,
-    30,     4,     0,     0,     1,     3,     2,    29,     0,     9,
-    28,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,    31,     6,     0,     0,     5,    29,     8,    22,
-    10,    18,    11,    19,    12,    15,    13,    17,    20,    23,
-    21,    24,    14,    25,    16,    26,    27,     0,    28,     0,
-     0,     0,     0,     0,     7,    23,    24,    25,    26,     0,
+    34,     4,     0,     0,     1,     3,     2,     8,    29,     0,
+     7,    28,     0,     0,     0,     0,     0,     0,     0,     0,
+     0,     0,     0,     0,    35,    30,     0,     0,     5,    29,
+     6,    22,     9,    17,    10,    18,    11,    14,    12,    16,
+    19,    23,    20,    24,    13,    25,    15,    26,    27,     0,
+     0,     0,    28,     0,     0,     0,     0,     0,     0,     0,
+    32,    31,    23,    24,    25,    26,    21,     0,    33,     0,
      0,     0
 };
 
-static const short yydefgoto[] = {    60,
-     5,     6,     7,     8
+static const short yydefgoto[] = {    70,
+     5,     6,    51,     8,     9
 };
 
-static const short yypact[] = {    -1,
--32768,    -5,    -1,    -1,-32768,    82,    77,    27,    18,-32768,
--32768,    20,    34,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-    -1,    18,-32768,    25,    18,    18,    26,    35,-32768,-32768,
-    50,     0,    50,     0,-32768,    26,-32768,    26,    50,     0,
-    50,     0,-32768,    26,-32768,    26,    26,    18,-32768,    69,
-    18,    18,    18,    18,    26,    45,    45,    26,    26,    44,
-    47,-32768
+static const short yypact[] = {     2,
+-32768,     5,     2,     2,-32768,    25,   108,    24,     8,    23,
+-32768,-32768,    78,    61,     2,     2,     2,     2,     2,     2,
+     2,     2,    23,     2,-32768,    35,    23,    23,    42,    43,
+    -2,-32768,    -6,    41,    -6,    41,-32768,    42,-32768,    42,
+    -6,    41,    -6,    41,-32768,    42,-32768,    42,    42,    92,
+   108,    23,-32768,    70,    23,    23,    23,    23,    23,     2,
+-32768,    42,    54,    54,    42,    42,    42,   100,-32768,    53,
+    71,-32768
 };
 
 static const short yypgoto[] = {-32768,
--32768,    52,    -3,    11
+-32768,    21,     0,-32768,    37
 };
 
 
-#define	YYLAST		90
+#define	YYLAST		117
 
 
-static const short yytable[] = {    11,
-    13,     1,     2,     9,     3,    27,    20,    21,    22,     4,
-    32,    34,    36,    38,    40,    42,    44,    46,    47,    28,
-     1,    49,    50,    25,    14,    15,    16,    17,    26,    23,
-    24,    29,    28,    48,    22,    28,    28,    23,    18,    19,
-    20,    21,    22,    61,    55,    30,    62,    56,    57,    58,
-    59,    53,    54,    22,    10,    12,    16,    17,    28,     0,
-     0,    28,    28,    28,    28,    31,    33,    35,    37,    39,
-    41,    43,    45,    51,    52,    53,    54,    22,     0,     0,
-    30,    18,    19,    20,    21,    22,    14,    15,    16,    17
+static const short yytable[] = {     7,
+    17,    18,    12,    14,     1,     2,    59,     3,    60,    29,
+    25,    26,     4,    10,    34,    36,    38,    40,    42,    44,
+    46,    48,    49,    11,    13,     1,    53,    54,    27,    15,
+    16,    17,    18,    28,    24,    33,    35,    37,    39,    41,
+    43,    45,    47,    52,    50,    25,    30,    21,    22,    23,
+    23,    62,    71,     0,    63,    64,    65,    66,    67,    30,
+    57,    58,    23,    30,    30,    19,    20,    21,    22,    23,
+    72,     0,    32,     0,    55,    56,    57,    58,    23,     0,
+    68,    32,    15,    16,    17,    18,     0,     0,    30,    31,
+     0,    30,    30,    30,    30,    30,    15,    16,    17,    18,
+     0,     0,     0,    61,    15,    16,    17,    18,     0,     0,
+     0,    69,    19,    20,    21,    22,    23
 };
 
-static const short yycheck[] = {     3,
-     4,     3,     4,     9,     6,     9,     7,     8,     9,    11,
-    14,    15,    16,    17,    18,    19,    20,    21,    22,     9,
-     3,    25,    26,     6,     5,     6,     7,     8,    11,     3,
-     4,    12,    22,     9,     9,    25,    26,     3,     5,     6,
-     7,     8,     9,     0,    48,    12,     0,    51,    52,    53,
-    54,     7,     8,     9,     3,     4,     7,     8,    48,    -1,
-    -1,    51,    52,    53,    54,    14,    15,    16,    17,    18,
-    19,    20,    21,     5,     6,     7,     8,     9,    -1,    -1,
-    12,     5,     6,     7,     8,     9,     5,     6,     7,     8
+static const short yycheck[] = {     0,
+     7,     8,     3,     4,     3,     4,     9,     6,    11,    10,
+     3,     4,    11,     9,    15,    16,    17,    18,    19,    20,
+    21,    22,    23,     3,     4,     3,    27,    28,     6,     5,
+     6,     7,     8,    11,    11,    15,    16,    17,    18,    19,
+    20,    21,    22,     9,    24,     3,    10,     7,     8,     9,
+     9,    52,     0,    -1,    55,    56,    57,    58,    59,    23,
+     7,     8,     9,    27,    28,     5,     6,     7,     8,     9,
+     0,    -1,    12,    -1,     5,     6,     7,     8,     9,    -1,
+    60,    12,     5,     6,     7,     8,    -1,    -1,    52,    12,
+    -1,    55,    56,    57,    58,    59,     5,     6,     7,     8,
+    -1,    -1,    -1,    12,     5,     6,     7,     8,    -1,    -1,
+    -1,    12,     5,     6,     7,     8,     9
 };
 /* -*-C-*-  Note some compilers choke on comments on `#line' lines.  */
 #line 3 "bison.simple"
@@ -754,13 +764,13 @@ yyreduce:
   switch (yyn) {
 
 case 1:
-#line 106 "../project.y"
+#line 107 "../project.y"
 {
 				finalOutput(yyvsp[0].coef_arr);
 			;
     break;}
 case 2:
-#line 112 "../project.y"
+#line 113 "../project.y"
 {
 				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
 				yyval.coef_arr[0] = yyvsp[0].num;
@@ -769,7 +779,7 @@ case 2:
 			;
     break;}
 case 3:
-#line 119 "../project.y"
+#line 120 "../project.y"
 {
 				memcpy(yyval.coef_arr, yyvsp[0].coef_arr, sizeof(yyval.coef_arr));
 
@@ -777,7 +787,7 @@ case 3:
 			;
     break;}
 case 4:
-#line 129 "../project.y"
+#line 130 "../project.y"
 {
 				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
 				yyval.coef_arr[1] = 1;
@@ -786,7 +796,7 @@ case 4:
 			;
     break;}
 case 5:
-#line 136 "../project.y"
+#line 137 "../project.y"
 {
 				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
 				yyval.coef_arr[yyvsp[0].num] = 1;
@@ -795,10 +805,9 @@ case 5:
 			;
     break;}
 case 6:
-#line 143 "../project.y"
+#line 144 "../project.y"
 {
-				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
-				yyval.coef_arr[1] = yyvsp[-1].num;
+				memcpy(yyval.coef_arr, yyvsp[-1].coef_arr, sizeof(yyval.coef_arr));
 
 				debug(12, yyval.coef_arr);
 			;
@@ -806,8 +815,8 @@ case 6:
 case 7:
 #line 150 "../project.y"
 {
-				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
-				yyval.coef_arr[yyvsp[0].num] = yyvsp[-3].num;
+				for (int i = 0; i < SIZE; i++)
+					yyval.coef_arr[i] = -1 * yyvsp[0].coef_arr[i];
 
 				debug(13, yyval.coef_arr);
 			;
@@ -815,22 +824,13 @@ case 7:
 case 8:
 #line 157 "../project.y"
 {
-				memcpy(yyval.coef_arr, yyvsp[-1].coef_arr, sizeof(yyval.coef_arr));
+				memcpy(yyval.coef_arr, yyvsp[0].coef_arr, sizeof(yyval.coef_arr));
 
 				debug(14, yyval.coef_arr);
 			;
     break;}
 case 9:
-#line 163 "../project.y"
-{
-				for (int i = 0; i < SIZE; i++)
-					yyval.coef_arr[i] = -1 * yyvsp[0].coef_arr[i];
-
-				debug(15, yyval.coef_arr);
-			;
-    break;}
-case 10:
-#line 171 "../project.y"
+#line 164 "../project.y"
 {
 				for (int i = 0; i < SIZE; i++)
 					yyval.coef_arr[i] = yyvsp[-2].coef_arr[i] + yyvsp[0].coef_arr[i];
@@ -838,8 +838,8 @@ case 10:
 				debug(20, yyval.coef_arr);
 			;
     break;}
-case 11:
-#line 178 "../project.y"
+case 10:
+#line 171 "../project.y"
 {
 				for (int i = 0; i < SIZE; i++)
 					yyval.coef_arr[i] = yyvsp[-2].coef_arr[i] - yyvsp[0].coef_arr[i];
@@ -847,8 +847,8 @@ case 11:
 				debug(21, yyval.coef_arr);
 			;
     break;}
-case 12:
-#line 185 "../project.y"
+case 11:
+#line 178 "../project.y"
 {
 				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
 				for (int i = 0; i < SIZE; i++)
@@ -867,17 +867,17 @@ case 12:
 				debug(22, yyval.coef_arr);
 			;
     break;}
-case 13:
-#line 203 "../project.y"
+case 12:
+#line 196 "../project.y"
 {
 				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
 				error("You're going to divide a polynomial into a polynomial!");
 
-				debug(23, yyval.coef_arr);
+				debug(24, yyval.coef_arr);
 			;
     break;}
-case 14:
-#line 211 "../project.y"
+case 13:
+#line 204 "../project.y"
 {
 				for (int i = 0; i < SIZE; i++)
 					yyval.coef_arr[i] = yyvsp[-2].num * yyvsp[0].coef_arr[i];
@@ -885,8 +885,8 @@ case 14:
 				debug(30, yyval.coef_arr);
 			;
     break;}
-case 15:
-#line 218 "../project.y"
+case 14:
+#line 211 "../project.y"
 {
 				for (int i = 0; i < SIZE; i++)
 					yyval.coef_arr[i] = yyvsp[0].num * yyvsp[-2].coef_arr[i];
@@ -894,8 +894,8 @@ case 15:
 				debug(31, yyval.coef_arr);
 			;
     break;}
-case 16:
-#line 225 "../project.y"
+case 15:
+#line 218 "../project.y"
 {
 				memcpy(yyval.coef_arr, yyvsp[0].coef_arr, sizeof(yyval.coef_arr));
 				error("Wrong expression: NUM / VAR!");
@@ -903,8 +903,8 @@ case 16:
 				debug(32, yyval.coef_arr);
 			;
     break;}
-case 17:
-#line 232 "../project.y"
+case 16:
+#line 225 "../project.y"
 {
 				memcpy(yyval.coef_arr, yyvsp[-2].coef_arr, sizeof(yyval.coef_arr));
 				for (int i = 0; i < SIZE; i++)
@@ -913,8 +913,8 @@ case 17:
 				debug(33, yyval.coef_arr);
 			;
     break;}
-case 18:
-#line 240 "../project.y"
+case 17:
+#line 233 "../project.y"
 {
 				memcpy(yyval.coef_arr, yyvsp[-2].coef_arr, sizeof(yyval.coef_arr));
 				yyval.coef_arr[0] += yyvsp[0].num;
@@ -922,8 +922,8 @@ case 18:
 				debug(34, yyval.coef_arr);
 			;
     break;}
-case 19:
-#line 247 "../project.y"
+case 18:
+#line 240 "../project.y"
 {
 				memcpy(yyval.coef_arr, yyvsp[-2].coef_arr, sizeof(yyval.coef_arr));
 				yyval.coef_arr[0] -= yyvsp[0].num;
@@ -931,8 +931,8 @@ case 19:
 				debug(35, yyval.coef_arr);
 			;
     break;}
-case 20:
-#line 254 "../project.y"
+case 19:
+#line 247 "../project.y"
 {
 				memcpy(yyval.coef_arr, yyvsp[0].coef_arr, sizeof(yyval.coef_arr));
 				yyval.coef_arr[0] += yyvsp[-2].num;
@@ -940,8 +940,8 @@ case 20:
 				debug(36, yyval.coef_arr);
 			;
     break;}
-case 21:
-#line 261 "../project.y"
+case 20:
+#line 254 "../project.y"
 {
 				for (int i = 0; i < SIZE; i++)
 					yyval.coef_arr[i] = -1 * yyvsp[0].coef_arr[i];
@@ -951,43 +951,74 @@ case 21:
 				debug(37, yyval.coef_arr);
 			;
     break;}
+case 21:
+#line 263 "../project.y"
+{
+				int buf[SIZE];
+				memcpy(yyval.coef_arr, yyvsp[-3].coef_arr, sizeof(yyval.coef_arr));
+
+				for (int k = 1; k < yyvsp[0].num; k++)
+				{
+					memset(buf, 0, sizeof(buf));
+					for (int i = SIZE - 1; i >= 0; i--)
+					{
+						if (yyval.coef_arr[i] == 0) continue;
+						for (int j = SIZE - 1; j >= 0; j--)
+						{
+							if (yyvsp[-3].coef_arr[j] == 0) continue;
+							int coef = yyval.coef_arr[i] * yyvsp[-3].coef_arr[j];
+							if (i + j < SIZE)
+								buf[i+j] += coef;
+							else if (coef != 0)
+							{
+								error("Too much degree!");
+								break;
+							}
+						}
+					}
+					memcpy(yyval.coef_arr, buf, sizeof(yyval.coef_arr));
+				}
+
+				debug(38, yyval.coef_arr);
+			;
+    break;}
 case 22:
-#line 274 "../project.y"
+#line 296 "../project.y"
 {
 				yyval.num = yyvsp[-1].num;
 				debugN(101, yyval.num);
 			;
     break;}
 case 23:
-#line 279 "../project.y"
+#line 301 "../project.y"
 {
 				yyval.num = yyvsp[-2].num + yyvsp[0].num;
 				debugN(102, yyval.num);
 			;
     break;}
 case 24:
-#line 284 "../project.y"
+#line 306 "../project.y"
 {
 				yyval.num = yyvsp[-2].num - yyvsp[0].num;
 				debugN(103, yyval.num);
 			;
     break;}
 case 25:
-#line 289 "../project.y"
+#line 311 "../project.y"
 {
 				yyval.num = yyvsp[-2].num * yyvsp[0].num;
 				debugN(104, yyval.num);
 			;
     break;}
 case 26:
-#line 294 "../project.y"
+#line 316 "../project.y"
 {
 				yyval.num = yyvsp[-2].num / yyvsp[0].num;
 				debugN(105, yyval.num);
 			;
     break;}
 case 27:
-#line 299 "../project.y"
+#line 321 "../project.y"
 {
 				yyval.num = yyvsp[-2].num;
 				for (int j = 1; j < yyvsp[0].num; j++)
@@ -996,20 +1027,78 @@ case 27:
 			;
     break;}
 case 28:
-#line 306 "../project.y"
+#line 328 "../project.y"
 {
 				yyval.num = -1 * yyvsp[0].num;
 				debugN(107, yyval.num);
 			;
     break;}
 case 30:
-#line 314 "../project.y"
+#line 338 "../project.y"
+{
+				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
+				yyval.coef_arr[1] = yyvsp[-1].num;
+
+				debug(200, yyval.coef_arr);
+			;
+    break;}
+case 31:
+#line 345 "../project.y"
+{
+				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
+				yyval.coef_arr[yyvsp[0].num] = yyvsp[-3].num;
+
+				debug(201, yyval.coef_arr);
+			;
+    break;}
+case 32:
+#line 352 "../project.y"
+{
+				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
+				for (int i = 0; i < SIZE; i++)
+					for (int j = 0; j < SIZE; j++)
+					{
+						int coef = yyvsp[-3].coef_arr[i] * yyvsp[-1].coef_arr[j];
+						if (i + j < SIZE)
+							yyval.coef_arr[i+j] += coef;
+						else if (coef != 0)
+						{
+							error("Too much degree!");
+							break;
+						}
+					}
+
+				debug(202, yyval.coef_arr);
+			;
+    break;}
+case 33:
+#line 370 "../project.y"
+{
+				memset(yyval.coef_arr, 0, sizeof(yyval.coef_arr));
+				for (int i = 0; i < SIZE; i++)
+					for (int j = 0; j < SIZE; j++)
+					{
+						int coef = yyvsp[-4].coef_arr[i] * yyvsp[-1].coef_arr[j];
+						if (i + j < SIZE)
+							yyval.coef_arr[i+j] += coef;
+						else if (coef != 0)
+						{
+							error("Too much degree!");
+							break;
+						}
+					}
+
+				debug(203, yyval.coef_arr);
+			;
+    break;}
+case 34:
+#line 390 "../project.y"
 {
 				yyval.num = yyvsp[0].num;
 			;
     break;}
-case 31:
-#line 318 "../project.y"
+case 35:
+#line 394 "../project.y"
 {
 				yyval.num = yyvsp[-1].num * 10 + yyvsp[0].num;
 			;
@@ -1212,7 +1301,7 @@ yyerrhandle:
   yystate = yyn;
   goto yynewstate;
 }
-#line 323 "../project.y"
+#line 399 "../project.y"
       /* начало секции подпрограмм */
 
 	int yyerror(char *str)
