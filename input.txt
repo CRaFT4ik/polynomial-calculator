@@ -1,11 +1,13 @@
-// Test comment string 123...
-$A=x
-$B=1
+// You can leave comments here
+$A=x^2+3x^5-1
 print $A
+$B=10x+2-3x^5+7x^6
 print $B
-$G=21x^10-4x
-$C=(($A+($B+1))-100)^1+$G
-print $C
-
+$C=($A+$B)+3x^7
+// Note for this assignment:
 $D=$C
 print $D
+// Here we use another variable:
+$G=(21z^10-4z)^1
+$G=$G-$G
+print $G

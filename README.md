@@ -1,10 +1,10 @@
 # Polynomial calculator
 
 Steps to success:
-1. bison.exe -y -d ../project.y
+1. bison.exe -y -d ../project.y (this is optional, already in VS settings)
 2. VS -> run project
 
-An example of an entry of the polynomial:
+An example of an entry of the polynomial (lab 1):
 ```
  x^2+3x^5-1                                  ->	3x^5+x^2-1
  (4x^3-10x^3)^2                              ->	36x^6
@@ -12,3 +12,30 @@ An example of an entry of the polynomial:
  2x(4x^3-10x^3)(4^2^2^2+5x^5-4^2^2)          ->	-60x^9-783360x^4
  -4+(-2x^2+4x^3*(x^(2*2-1)*2+1))(x^2+1)+7*1  ->	8x^8+8x^6+4x^5-2x^4+4x^3-2x^2+3
 ```
+Or you can use lab 2 features (example of input.txt):
+```
+// You can leave comments here
+$A=x^2+3x^5-1
+print $A
+$B=10x+2-3x^5+7x^6
+print $B
+$C=($A+$B)+3x^7
+// Note for this assignment:
+$D=$C
+print $D
+// Here we use another variable:
+$G=(21z^10-4z)^1
+$G=$G-$G
+print $G
+```
+And output for this:
+```
+[OUT]: $A = 3x^5+x^2-1
+[OUT]: $B = 7x^6-3x^5+10x+2
+[OUT]: $D = 3x^7+7x^6+x^2+10x+1
+[OUT]: $G = 0
+```
+
+Please, note:
+ * Max. degree of a polynomial = SIZE;
+ * For remove trash messages just remove "#define DEBUG" in .y file.
