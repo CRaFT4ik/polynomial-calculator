@@ -6,7 +6,7 @@ print $B
 $C=($A+$B)+3x^7
 // Note for this assignment:
 $D=$C
-print $D
+print $D+10*3+7
 // Here we use another variable:
 $G=(21z^10-4z)^1
 $G=$G-$G

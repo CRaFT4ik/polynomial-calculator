@@ -12,7 +12,7 @@
 
 	#define SIZE		1000
 	#define VARS_SIZE	26
-	#define DEBUG
+	// #define DEBUG
 
 	void error(char *str)
 	{
@@ -31,6 +31,7 @@
 	struct variable
 	{
 		int name; // Имя переменной вида $[smthg].
+		int is_init; // Была ли переменная проиницилизирована.
 		struct polynomial polynom; // Полином, присвоенный данной переменной.
 	};
 
@@ -51,6 +52,8 @@
 		if (dest == NULL) return;
 
 		memset(dest, 0, sizeof(struct variable));
+		dest->is_init = 1;
+
 		if (isupper(name)) dest->name = name;
 		if (polynom != NULL)
 			memcpy(&dest->polynom, polynom, sizeof(dest->polynom));
@@ -100,11 +103,11 @@
 		#endif
 	}
 
-	void print(struct variable *var)
+	void print(struct polynomial *polynom)
 	{
-		int *pcoefs = var->polynom.coefs;
+		int *pcoefs = polynom->coefs;
 
-		printf("[OUT]: $%c = ", var->name);
+		printf("[OUT]: ");
 		char buf[SIZE*5];
 		char *p = buf;
 		memset(buf, 0, sizeof(buf));
@@ -135,7 +138,7 @@
 				p = buf + strlen(buf);
 			}
 
-			sprintf(p, "%c", var->polynom.name);
+			sprintf(p, "%c", polynom->name);
 			p = buf + strlen(buf);
 
 			if (i > 1)
@@ -183,25 +186,23 @@
 
 main	:	convol
 			{
-				struct variable var;
-				init_variable(&var, 'E', &$1);
-				print(&var);
+				print(&$1);
 			}
 		|	input
 		;
 
-// Обработка входного документа с глобальными переменными (калькулятор полиномов).
-input	:	gl_var
+input	:	// Обработка входного документа с глобальными переменными (калькулятор полиномов).
+
+			gl_var
 		|	input gl_var
 		;
 
-// Обработка выражений с глобальными переменными.
-gl_var	:	CMD_PRINT ' ' GL_VAR
-			{
-				struct variable *var = get_variable_by_name($3);
-				print(var);
+gl_var	:	// Обработка выражений с глобальными переменными.
 
-				debug(1001, &var->polynom);
+			CMD_PRINT ' ' convol
+			{
+				print(&$3);
+				debug(1001, &$3);
 			}
 		|	GL_VAR '=' convol
 			{
@@ -234,7 +235,15 @@ var_convol	: // Калькулятор числа + переменные.
 			GL_VAR	// Да да. Мы оперируем калькулятором "числа + переменные"
 			{		// как калькулятором полиномов ($A + $B). И это работает!
 				struct variable *var = get_variable_by_name($1);
-				copy_polynomial(&$$, &var->polynom);
+
+				if (!var->is_init)
+				{
+					char str[128];
+					sprintf(str, "Variable '$%c' might not have been initialized!", $1);
+					error(str);
+					YYABORT;
+				} else
+					copy_polynomial(&$$, &var->polynom);
 
 				debug(10, &$$);
 			}
@@ -567,7 +576,7 @@ number	:	DIGIT
 
 	int yyerror(char *str)
 	{
-		printf("Error: \"%s\"\n", str);
+		error(str);
 		return 0;
 	}
 
@@ -592,7 +601,11 @@ start:	int c = fgetc(yyin);
 
 				goto start;
 			} else
-				ungetc(c_next, yyin);
+			{
+				error("Use '//' instead of '/' for comments!");
+				YYABORT;
+				// ungetc(c_next, yyin);
+			}
 		}
 
 		// Проверяем на команду.
@@ -612,7 +625,11 @@ start:	int c = fgetc(yyin);
 				yylval.ch = c;
 				return (GL_VAR);
 			} else
-				ungetc(c, yyin);
+			{
+				error("Expected '[A-Z]' after '$'!");
+				YYABORT;
+				// ungetc(c, yyin);
+			}
 		} else if (isdigit(c))
 		{
 			yylval.num = c - '0';
