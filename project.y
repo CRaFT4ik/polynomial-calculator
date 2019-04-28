@@ -584,7 +584,8 @@ number	:	DIGIT
 
 	int yylex()
 	{
-start:	int c = fgetc(yyin);
+		int c;
+start:	c = fgetc(yyin);
 
 		// Убираем пустые строки.
 		while (c == '\r' || c == '\n')
@@ -601,11 +602,7 @@ start:	int c = fgetc(yyin);
 
 				goto start;
 			} else
-			{
-				error("Use '//' instead of '/' for comments!");
-				YYABORT;
-				// ungetc(c_next, yyin);
-			}
+				ungetc(c_next, yyin);
 		}
 
 		// Проверяем на команду.
@@ -618,7 +615,11 @@ start:	int c = fgetc(yyin);
 			c = fgetc(yyin);
 		}
 
-		if (c == '$')
+		if (c == '#')
+		{
+			error("Use '//' instead of '#' for comments!");
+			YYABORT;
+		} else if (c == '$')
 		{
 			if (isupper(c = fgetc(yyin)))
 			{

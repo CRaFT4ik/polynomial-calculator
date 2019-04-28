@@ -43,7 +43,7 @@ Please, note:
 The following errors will be caught:
  * Lexical:
     * only [A-Z] after $;
-    * use '//' instead of '/' for comments;
+    * use '//' instead of '#' for comments;
  * Syntax:
     * numerical expression / expression with a var.;
     * expression with a var. / expression with a var.;
