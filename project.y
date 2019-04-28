@@ -62,7 +62,7 @@
 		if (dest == NULL) return;
 
 		memset(dest, 0, sizeof(struct polynomial));
-		if (isupper(name)) dest->name = name;
+		if (islower(name)) dest->name = name;
 		if (coefs != NULL) memcpy(dest->coefs, coefs, sizeof(dest->coefs));
 	}
 
@@ -104,7 +104,7 @@
 	{
 		int *pcoefs = var->polynom.coefs;
 
-		printf("[out]: $%c = ", var->name);
+		printf("[OUT]: $%c = ", var->name);
 		char buf[SIZE*5];
 		char *p = buf;
 		memset(buf, 0, sizeof(buf));
@@ -135,7 +135,7 @@
 				p = buf + strlen(buf);
 			}
 
-			sprintf(p, "%s", "x");
+			sprintf(p, "%c", var->polynom.name);
 			p = buf + strlen(buf);
 
 			if (i > 1)
@@ -153,11 +153,8 @@
 %union
 {
 	int num;
-	int coefs[SIZE];
 	char ch;
-
 	struct polynomial st_poly;
-	//struct variable st_var;
 }
 
 %start main
@@ -184,10 +181,13 @@
 
 %%     /* начало секции правил */
 
-main	:	input
+main	:	convol
 			{
-				//finalOutput(get_variable_by_name($1));
+				struct variable var;
+				init_variable(&var, 'E', &$1);
+				print(&var);
 			}
+		|	input
 		;
 
 // Обработка входного документа с глобальными переменными (калькулятор полиномов).
@@ -196,36 +196,34 @@ input	:	gl_var
 		;
 
 // Обработка выражений с глобальными переменными.
-gl_var	:	GL_VAR '=' convol
-			{
-				struct variable *var = get_variable_by_name($1);
-				init_variable(var, $1, &$3);
-
-				debug(1001, &var->polynom);
-			}
-		|	CMD_PRINT ' ' GL_VAR
+gl_var	:	CMD_PRINT ' ' GL_VAR
 			{
 				struct variable *var = get_variable_by_name($3);
 				print(var);
+
+				debug(1001, &var->polynom);
+			}
+		|	GL_VAR '=' convol
+			{
+				struct variable *var = get_variable_by_name($1);
+				init_variable(var, $1, &$3);
 
 				debug(1002, &var->polynom);
 			}
 		;
 
-// Обработка выражения с переменной или без.
-convol	:	num_convol
+convol	:	// Обработка выражения с переменной или без.
+
+			num_convol
 			{
 				init_polynomial(&$$, '\0', NULL);
 				set_coef(&$$, 0, $1);
-				// memset($$, 0, sizeof($$));
-				// $$[0] = $1;
 
 				debug(1, &$$);
 			}
 		|	var_convol
 			{
 				init_polynomial(&$$, $1.name, $1.coefs);
-				// memcpy($$, $1, sizeof($$));
 
 				debug(2, &$$);
 			}
@@ -233,89 +231,87 @@ convol	:	num_convol
 
 var_convol	: // Калькулятор числа + переменные.
 
-			LETTER
+			GL_VAR	// Да да. Мы оперируем калькулятором "числа + переменные"
+			{		// как калькулятором полиномов ($A + $B). И это работает!
+				struct variable *var = get_variable_by_name($1);
+				copy_polynomial(&$$, &var->polynom);
+
+				debug(10, &$$);
+			}
+		|	LETTER
 			{
 				init_polynomial(&$$, $1, NULL);
 				$$.coefs[1] = 1;
-				// memset($$, 0, sizeof($$));
-				// $$[1] = 1;
 
-				debug(10, &$$);
+				debug(11, &$$);
 			}
 		|	LETTER '^' num_convol
 			{
 				init_polynomial(&$$, $1, NULL);
-				$$.coefs[$3] = 1;
-				// memset($$, 0, sizeof($$));
-				// $$[$3] = 1;
+				if ($3 == 0) $$.coefs[0] = 1;
+				else $$.coefs[$3] = 1;
 
-				debug(11, &$$);
+				debug(12, &$$);
 			}
 		|	'(' var_convol ')'
 			{
 				copy_polynomial(&$$, &$2);
-				// memcpy($$, $2, sizeof($$));
 
-				debug(12, &$$);
+				debug(13, &$$);
 			}
 		|	'-' var_convol %prec UMINUS
 			{
 				copy_polynomial(&$$, &$2);
 				for (int i = 0; i < SIZE; i++)
 					$$.coefs[i] *= -1;
-				// for (int i = 0; i < SIZE; i++)
-				//	 $$[i] = -1 * $2[i];
 
-				debug(13, &$$);
+				debug(14, &$$);
 			}
 		|	mult_simpl // Сокращенное умножение (2x, 2x^2(3x+1), ...).
 			{
 				copy_polynomial(&$$, &$1);
-				// memcpy($$, $1, sizeof($$));
 
-				debug(14, &$$);
+				debug(15, &$$);
 			}
 			// Операции типа "выражение с переменной + выражение с переменной".
 		|	var_convol '+' var_convol
 			{
-				if ($1.name != $3.name)
+				if ($1.name != $3.name && ($1.name != '\0' && $3.name != '\0'))
 				{
 					error("Expressions have different types of variables!");
 					YYABORT;
 				}
 
-				$$.name = $1.name;
+				$$.name = ($1.name != '\0') ? $1.name : $3.name;
 				for (int i = 0; i < SIZE; i++)
 				 	$$.coefs[i] = $1.coefs[i] + $3.coefs[i];
-				// for (int i = 0; i < SIZE; i++)
-				// 	$$[i] = $1[i] + $3[i];
 
 				debug(20, &$$);
 			}
 		|	var_convol '-' var_convol
 			{
-				if ($1.name != $3.name)
+				if ($1.name != $3.name && ($1.name != '\0' && $3.name != '\0'))
 				{
 					error("Expressions have different types of variables!");
 					YYABORT;
 				}
 
+				$$.name = ($1.name != '\0') ? $1.name : $3.name;
 				for (int i = 0; i < SIZE; i++)
 					$$.coefs[i] = $1.coefs[i] - $3.coefs[i];
-				// for (int i = 0; i < SIZE; i++)
-				// 	$$[i] = $1[i] - $3[i];
 
 				debug(21, &$$);
 			}
 		|	var_convol '*' var_convol
 			{
-				if ($1.name != $3.name)
+				if ($1.name != $3.name && ($1.name != '\0' && $3.name != '\0'))
 				{
 					error("Expressions have different types of variables!");
 					YYABORT;
 				}
 
-				init_polynomial(&$$, $1.name, NULL);
+				char name = ($1.name != '\0') ? $1.name : $3.name;
+				init_polynomial(&$$, name, NULL);
 				for (int i = 0; i < SIZE; i++)
 					for (int j = 0; j < SIZE; j++)
 					{
@@ -328,19 +324,6 @@ var_convol	: // Калькулятор числа + переменные.
 							YYABORT;
 						}
 					}
-				// memset($$, 0, sizeof($$));
-				// for (int i = 0; i < SIZE; i++)
-				// 	for (int j = 0; j < SIZE; j++)
-				// 	{
-				// 		int coef = $1[i] * $3[j];
-				// 		if (i + j < SIZE)
-				// 			$$[i+j] += coef;
-				// 		else if (coef != 0)
-				// 		{
-				// 			error("Too much degree!");
-				// 			break;
-				// 		}
-				// 	}
 
 				debug(22, &$$);
 			}
@@ -348,8 +331,6 @@ var_convol	: // Калькулятор числа + переменные.
 			{
 				error("You're going to divide a polynomial into a polynomial!");
 				YYABORT;
-				// memset($$, 0, sizeof($$));
-				// error("You're going to divide a polynomial into a polynomial!");
 
 				debug(24, &$$);
 			}
@@ -359,8 +340,6 @@ var_convol	: // Калькулятор числа + переменные.
 				copy_polynomial(&$$, &$3);
 				for (int i = 0; i < SIZE; i++)
 					$$.coefs[i] *= $1;
-				// for (int i = 0; i < SIZE; i++)
-				// 	$$[i] = $1 * $3[i];
 
 				debug(30, &$$);
 			}
@@ -369,15 +348,11 @@ var_convol	: // Калькулятор числа + переменные.
 				copy_polynomial(&$$, &$1);
 				for (int i = 0; i < SIZE; i++)
 					$$.coefs[i] *= $3;
-				// for (int i = 0; i < SIZE; i++)
-				// 	$$[i] = $3 * $1[i];
 
 				debug(31, &$$);
 			}
 		|	num_convol '/' var_convol
 			{
-				// memcpy($$, $3, sizeof($$));
-
 				error("Wrong expression: NUM / VAR!");
 				YYABORT;
 
@@ -388,9 +363,6 @@ var_convol	: // Калькулятор числа + переменные.
 				copy_polynomial(&$$, &$1);
 				for (int i = 0; i < SIZE; i++)
 					$$.coefs[i] /= $3;
-				// memcpy($$, $1, sizeof($$));
-				// for (int i = 0; i < SIZE; i++)
-				// 	$$[i] /= $3;
 
 				debug(33, &$$);
 			}
@@ -398,8 +370,6 @@ var_convol	: // Калькулятор числа + переменные.
 			{
 				copy_polynomial(&$$, &$1);
 				$$.coefs[0] += $3;
-				// memcpy($$, $1, sizeof($$));
-				// $$[0] += $3;
 
 				debug(34, &$$);
 			}
@@ -407,8 +377,6 @@ var_convol	: // Калькулятор числа + переменные.
 			{
 				copy_polynomial(&$$, &$1);
 				$$.coefs[0] -= $3;
-				// memcpy($$, $1, sizeof($$));
-				// $$[0] -= $3;
 
 				debug(35, &$$);
 			}
@@ -416,8 +384,6 @@ var_convol	: // Калькулятор числа + переменные.
 			{
 				copy_polynomial(&$$, &$3);
 				$$.coefs[0] += $1;
-				// memcpy($$, $3, sizeof($$));
-				// $$[0] += $1;
 
 				debug(36, &$$);
 			}
@@ -428,63 +394,42 @@ var_convol	: // Калькулятор числа + переменные.
 					$$.coefs[i] *= -1;
 
 				$$.coefs[0] += $1;
-				// for (int i = 0; i < SIZE; i++)
-				// 	$$[i] = -1 * $3[i];
-				//
-				// $$[0] += $1;
 
 				debug(37, &$$);
 			}
 		|	'(' var_convol ')' '^' num_convol
 			{
-				copy_polynomial(&$$, &$2);
-				int buf[SIZE];
-
-				for (int k = 1; k < $5; k++)
+				if ($5 == 0)
 				{
-					memset(buf, 0, sizeof(buf));
-					for (int i = SIZE - 1; i >= 0; i--)
+					init_polynomial(&$$, $2.name, NULL);
+					$$.coefs[0] = 1;
+				} else
+				{
+					copy_polynomial(&$$, &$2);
+					int buf[SIZE];
+
+					for (int k = 1; k < $5; k++)
 					{
-						if ($$.coefs[i] == 0) continue;
-						for (int j = SIZE - 1; j >= 0; j--)
+						memset(buf, 0, sizeof(buf));
+						for (int i = SIZE - 1; i >= 0; i--)
 						{
-							if ($2.coefs[j] == 0) continue;
-							int coef = $$.coefs[i] * $2.coefs[j];
-							if (i + j < SIZE)
-								buf[i+j] += coef;
-							else if (coef != 0)
+							if ($$.coefs[i] == 0) continue;
+							for (int j = SIZE - 1; j >= 0; j--)
 							{
-								error("Too much degree!");
-								YYABORT;
+								if ($2.coefs[j] == 0) continue;
+								int coef = $$.coefs[i] * $2.coefs[j];
+								if (i + j < SIZE)
+									buf[i+j] += coef;
+									else if (coef != 0)
+									{
+										error("Too much degree!");
+										YYABORT;
+									}
 							}
 						}
+						memcpy($$.coefs, buf, sizeof($$.coefs));
 					}
-					memcpy($$.coefs, buf, sizeof($$.coefs));
 				}
-				// int buf[SIZE];
-				// memcpy($$, $2, sizeof($$));
-				//
-				// for (int k = 1; k < $5; k++)
-				// {
-				// 	memset(buf, 0, sizeof(buf));
-				// 	for (int i = SIZE - 1; i >= 0; i--)
-				// 	{
-				// 		if ($$[i] == 0) continue;
-				// 		for (int j = SIZE - 1; j >= 0; j--)
-				// 		{
-				// 			if ($2[j] == 0) continue;
-				// 			int coef = $$[i] * $2[j];
-				// 			if (i + j < SIZE)
-				// 				buf[i+j] += coef;
-				// 			else if (coef != 0)
-				// 			{
-				// 				error("Too much degree!");
-				// 				break;
-				// 			}
-				// 		}
-				// 	}
-				// 	memcpy($$, buf, sizeof($$));
-				// }
 
 				debug(38, &$$);
 			}
@@ -519,9 +464,15 @@ num_convol	: // Калькулятор чисел.
 			}
 		|	num_convol '^' num_convol
 			{
-				$$ = $1;
-				for (int j = 1; j < $3; j++)
-					$$ *= $1;
+				if ($3 == 0)
+					$$ = 1;
+				else
+				{
+					$$ = $1;
+					for (int j = 1; j < $3; j++)
+						$$ *= $1;
+				}
+
 				debugN(106, $$);
 			}
 		|	'-' num_convol %prec UMINUS // Ставим наивысший приоритет.
@@ -539,29 +490,27 @@ mult_simpl	:	// Сокращенная запись умножения (2x, 2x^2
 			{
 				init_polynomial(&$$, $2, NULL);
 				$$.coefs[1] = $1;
-				// memset($$, 0, sizeof($$));
-				// $$[1] = $1;
 
 				debug(200, &$$);
 			}
 		|	number LETTER '^' num_convol
 			{
 				init_polynomial(&$$, $2, NULL);
-				$$.coefs[$4] = $1;
-				// memset($$, 0, sizeof($$));
-				// $$[$4] = $1;
+				if ($4 == 0) $$.coefs[0] = $1;
+				else $$.coefs[$4] = $1;
 
 				debug(201, &$$);
 			}
 		|	mult_simpl '(' var_convol ')'
 			{
-				if ($1.name != $3.name)
+				if ($1.name != $3.name && ($1.name != '\0' && $3.name != '\0'))
 				{
 					error("Expressions have different types of variables!");
 					YYABORT;
 				}
 
-				init_polynomial(&$$, $1.name, NULL);
+				char name = ($1.name != '\0') ? $1.name : $3.name;
+				init_polynomial(&$$, name, NULL);
 				for (int i = 0; i < SIZE; i++)
 					for (int j = 0; j < SIZE; j++)
 					{
@@ -574,31 +523,19 @@ mult_simpl	:	// Сокращенная запись умножения (2x, 2x^2
 							YYABORT;
 						}
 					}
-				// memset($$, 0, sizeof($$));
-				// for (int i = 0; i < SIZE; i++)
-				// 	for (int j = 0; j < SIZE; j++)
-				// 	{
-				// 		int coef = $1[i] * $3[j];
-				// 		if (i + j < SIZE)
-				// 			$$[i+j] += coef;
-				// 		else if (coef != 0)
-				// 		{
-				// 			error("Too much degree!");
-				// 			break;
-				// 		}
-				// 	}
 
 				debug(202, &$$);
 			}
 		|	'(' var_convol ')' '(' var_convol ')'
 			{
-				if ($2.name != $5.name)
+				if ($2.name != $5.name && ($2.name != '\0' && $5.name != '\0'))
 				{
 					error("Expressions have different types of variables!");
 					YYABORT;
 				}
 
-				init_polynomial(&$$, $2.name, NULL);
+				char name = ($2.name != '\0') ? $2.name : $5.name;
+				init_polynomial(&$$, name, NULL);
 				for (int i = 0; i < SIZE; i++)
 					for (int j = 0; j < SIZE; j++)
 					{
@@ -611,19 +548,6 @@ mult_simpl	:	// Сокращенная запись умножения (2x, 2x^2
 							YYABORT;
 						}
 					}
-				// memset($$, 0, sizeof($$));
-				// for (int i = 0; i < SIZE; i++)
-				// 	for (int j = 0; j < SIZE; j++)
-				// 	{
-				// 		int coef = $2[i] * $5[j];
-				// 		if (i + j < SIZE)
-				// 			$$[i+j] += coef;
-				// 		else if (coef != 0)
-				// 		{
-				// 			error("Too much degree!");
-				// 			break;
-				// 		}
-				// 	}
 
 				debug(203, &$$);
 			}

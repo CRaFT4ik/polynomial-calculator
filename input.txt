@@ -1,4 +1,11 @@
 // Test comment string 123...
-$A=x^2+3x^5-1
-$B=(4x^3-10x^3)^2
+$A=x
+$B=1
 print $A
+print $B
+$G=21x^10-4x
+$C=(($A+($B+1))-100)^1+$G
+print $C
+
+$D=$C
+print $D
