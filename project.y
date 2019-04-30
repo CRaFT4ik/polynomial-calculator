@@ -247,12 +247,58 @@ var_convol	: // Калькулятор числа + переменные.
 
 				debug(10, &$$);
 			}
+		|	GL_VAR '^' num_convol
+			{
+				struct variable *var = get_variable_by_name($1);
+
+				if (!var->is_init)
+				{
+					char str[128];
+					sprintf(str, "Variable '$%c' might not have been initialized!", $1);
+					error(str);
+					YYABORT;
+				}
+
+				if ($3 == 0)
+				{
+					init_polynomial(&$$, var->polynom.name, NULL);
+					$$.coefs[0] = 1;
+				} else
+				{
+					copy_polynomial(&$$, &var->polynom);
+					int buf[SIZE];
+
+					for (int k = 1; k < $3; k++)
+					{
+						memset(buf, 0, sizeof(buf));
+						for (int i = SIZE - 1; i >= 0; i--)
+						{
+							if ($$.coefs[i] == 0) continue;
+							for (int j = SIZE - 1; j >= 0; j--)
+							{
+								if (var->polynom.coefs[j] == 0) continue;
+								int coef = $$.coefs[i] * var->polynom.coefs[j];
+								if (i + j < SIZE)
+									buf[i+j] += coef;
+									else if (coef != 0)
+									{
+										error("Too much degree!");
+										YYABORT;
+									}
+							}
+						}
+						memcpy($$.coefs, buf, sizeof($$.coefs));
+					}
+				}
+
+				debug(11, &$$);
+			}
 		|	LETTER
 			{
 				init_polynomial(&$$, $1, NULL);
 				$$.coefs[1] = 1;
 
-				debug(11, &$$);
+				debug(12, &$$);
 			}
 		|	LETTER '^' num_convol
 			{
@@ -260,13 +306,13 @@ var_convol	: // Калькулятор числа + переменные.
 				if ($3 == 0) $$.coefs[0] = 1;
 				else $$.coefs[$3] = 1;
 
-				debug(12, &$$);
+				debug(13, &$$);
 			}
 		|	'(' var_convol ')'
 			{
 				copy_polynomial(&$$, &$2);
 
-				debug(13, &$$);
+				debug(14, &$$);
 			}
 		|	'-' var_convol %prec UMINUS
 			{
@@ -274,13 +320,13 @@ var_convol	: // Калькулятор числа + переменные.
 				for (int i = 0; i < SIZE; i++)
 					$$.coefs[i] *= -1;
 
-				debug(14, &$$);
+				debug(15, &$$);
 			}
 		|	mult_simpl // Сокращенное умножение (2x, 2x^2(3x+1), ...).
 			{
 				copy_polynomial(&$$, &$1);
 
-				debug(15, &$$);
+				debug(16, &$$);
 			}
 			// Операции типа "выражение с переменной + выражение с переменной".
 		|	var_convol '+' var_convol
