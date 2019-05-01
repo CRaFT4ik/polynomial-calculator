@@ -14,9 +14,12 @@
 	#define VARS_SIZE	26
 	// #define DEBUG
 
+	// Номер текущей обрабатываемой строки (изменяется yylex()).
+	int cur_line = 1;
+
 	void error(char *str)
 	{
-		printf("ERROR: %s\n", str);
+		printf("ERROR: %s :: (line #%d of the input file)\n", str, cur_line);
 	}
 
 	// Описывает полином.
@@ -228,6 +231,8 @@ convol	:	// Обработка выражения с переменной или
 
 				debug(2, &$$);
 			}
+		// |	convol '(' var_convol ')'
+		// |	'(' var_convol ')' convol
 		;
 
 var_convol	: // Калькулятор числа + переменные.
@@ -606,6 +611,45 @@ mult_simpl	:	// Сокращенная запись умножения (2x, 2x^2
 
 				debug(203, &$$);
 			}
+		|	num_convol '(' var_convol ')'
+			{
+				copy_polynomial(&$$, &$3);
+				for (int i = 0; i < SIZE; i++)
+					$$.coefs[i] *= $1;
+
+				debug(204, &$$);
+			}
+		|	mult_simpl '(' num_convol ')'
+			{
+				copy_polynomial(&$$, &$1);
+				for (int i = 0; i < SIZE; i++)
+					$$.coefs[i] *= $3;
+
+				debug(205, &$$);
+			}
+		|	'(' var_convol ')' '(' num_convol ')'
+			{
+				copy_polynomial(&$$, &$2);
+				for (int i = 0; i < SIZE; i++)
+					$$.coefs[i] *= $5;
+
+				debug(206, &$$);
+			}
+		|	num_convol '(' num_convol ')'
+			{
+				init_polynomial(&$$, '\0', NULL);
+				$$.coefs[0] = $1 * $3;
+
+				debug(207, &$$);
+			}
+		|	'(' num_convol ')' var_convol
+			{
+				copy_polynomial(&$$, &$4);
+				for (int i = 0; i < SIZE; i++)
+					$$.coefs[i] *= $2;
+
+				debug(208, &$$);
+			}
 		;
 
 number	:	DIGIT
@@ -627,18 +671,48 @@ number	:	DIGIT
 	}
 
 	FILE *yyin = NULL;
+	int need_inc = 0;
 
 	int yylex()
 	{
-		int c;
-start:	c = fgetc(yyin);
+		while (need_inc) // Счетчик линий увеличиваем не сразу, а на следующем заходе в метод.
+		{
+			cur_line++;
+			need_inc--;
+		}
 
-		// Убираем пустые строки.
+		int c = fgetc(yyin);
+
+start:	// Убираем пустые строки.
 		while (c == '\r' || c == '\n')
+		{
+			if (c == '\n') need_inc += 1;
 			c = fgetc(yyin);
+		}
 
 		// Определяем однострочный комментарий.
-		if (c == '/')
+		if (c == ' ' || c == '\t') // Комментарий идет после записи.
+		{
+			int c_next_1 = fgetc(yyin);
+			if (c_next_1 == '/')
+			{
+				int c_next_2 = fgetc(yyin);
+				if (c_next_2 == '/')
+				{
+					while (c != '\n' && c != EOF)
+						c = fgetc(yyin);
+
+					goto start;
+				} else
+				{
+					ungetc(c_next_2, yyin);
+					ungetc(c_next_1, yyin);
+				}
+			} else
+				ungetc(c_next_1, yyin);
+		}
+
+		if (c == '/') // Комментарий идет сразу с новой строки.
 		{
 			int c_next = fgetc(yyin);
 			if (c_next == '/')
